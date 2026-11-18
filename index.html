@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="it" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dock 71 | Risto-Pub &amp; Birreria Portuale Cantù - Malto, Griglia, Rock'n'Roll</title>
+    <meta name="description" content="Sito ufficiale di Dock 71 a Cantù: pizze a lunga lievitazione 48h, burger artigianali, 14 birre alla spina, Sky Sport HD e la storica gru industriale del 1912." />
+    <meta property="og:title" content="Dock 71 | Risto-Pub &amp; Birreria Portuale Cantù - Malto, Griglia, Rock'n'Roll" />
+    <meta property="og:description" content="Sito ufficiale di Dock 71 a Cantù: pizze a lunga lievitazione 48h, burger artigianali, 14 birre alla spina, Sky Sport HD e la storica gru industriale del 1912." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&amp;family=Alfa+Slab+One&amp;family=Epilogue:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&amp;family=Oleo+Script:wght@400;700&amp;family=Work+Sans:wght@300;400;500;600;700;800&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  </head>
+    <!-- Google Translate Engine for 100% full-DOM real-time neural translation -->
+    <div id="google_translate_element" style="display:none; position:absolute; top:-9999px; left:-9999px;"></div>
+    <style>
+      /* Hide Google Translate top banner & tooltip elements to preserve pixel-perfect custom Dock 71 UI */
+      .goog-te-banner-frame.skiptranslate,
+      .goog-te-banner-frame,
+      #goog-gt-tt,
+      .goog-te-balloon-frame {
+        display: none !important;
+        visibility: hidden !important;
+      }
+      body {
+        top: 0px !important;
+      }
+      .skiptranslate:not(.dock-allow-translate) {
+        display: none !important;
+      }
+      font {
+        background-color: transparent !important;
+        box-shadow: none !important;
+      }
+    </style>
+    <script type="text/javascript">
+      // Protegge tutte le icone Material Symbols dalla traduzione automatica (evita che diventino testo)
+      (function protectIconsFromTranslation() {
+        function lockIcon(el) {
+          if (!el || !el.classList) return;
+          if (!el.classList.contains('notranslate')) {
+            el.classList.add('notranslate');
+          }
+          if (el.getAttribute('translate') !== 'no') {
+            el.setAttribute('translate', 'no');
+          }
+          // Salva il nome originale della ligatura se non contiene già tag <font>
+          const rawText = (el.textContent || '').trim();
+          if (!el.dataset.iconName && rawText && /^[a-z0-9_]+$/.test(rawText)) {
+            el.dataset.iconName = rawText;
+          }
+          // Se Google Translate ha iniettato <font> o alterato il nome ligatura, ripristinalo subito
+          if (el.dataset.iconName && (el.querySelector('font') || el.textContent.trim() !== el.dataset.iconName)) {
+            el.textContent = el.dataset.iconName;
+          }
+        }
+
+        function scanAllIcons(root) {
+          if (!root || !root.querySelectorAll) return;
+          const icons = root.querySelectorAll('.material-symbols-outlined');
+          icons.forEach(lockIcon);
+        }
+
+        const observer = new MutationObserver(function(mutations) {
+          for (let i = 0; i < mutations.length; i++) {
+            const m = mutations[i];
+            if (m.type === 'childList') {
+              if (m.target && m.target.classList && m.target.classList.contains('material-symbols-outlined')) {
+                lockIcon(m.target);
+              }
+              m.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) {
+                  if (node.classList && node.classList.contains('material-symbols-outlined')) {
+                    lockIcon(node);
+                  }
+                  scanAllIcons(node);
+                }
+              });
+            }
+          }
+        });
+
+        observer.observe(document.documentElement, {
+          childList: true,
+          subtree: true
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+          scanAllIcons(document);
+        });
+      })();
+
+      function googleTranslateElementInit() {
+        if (window.google && window.google.translate) {
+          new window.google.translate.TranslateElement({
+            pageLanguage: 'it',
+            includedLanguages: 'en,de,fr,nl,zh-CN,ru,ar,es,it',
+            autoDisplay: false
+          }, 'google_translate_element');
+        }
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

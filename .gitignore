@@ -1,0 +1,22 @@
+node_modules/
+build/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Sensitive database & SMTP configs
+db.php
+config.php
+public/backend/db.php
+
+# Media Upload persistence (MUST NOT be overwritten by Git deploy)
+uploads/
+/uploads/
+uploads/images/
+/uploads/images/
+/public/uploads/images/
+/public/uploads/videos/
+public/backend/uploads/
+

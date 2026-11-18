@@ -1,0 +1,6 @@
+{
+  "name": "Dock 71 Cantù - Risto-Pub & Birreria Portuale",
+  "description": "Sito ufficiale di Dock 71 a Cantù: pizze a lunga lievitazione 48h, burger artigianali, 14 birre alla spina, Sky Sport HD e la storica gru industriale del 1912.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
