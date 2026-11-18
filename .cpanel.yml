@@ -10,11 +10,10 @@ deployment:
     - export DEPLOYPATH=$HOME/public_html/
 
     # 2. Assicura l'esistenza della cartella /uploads/ e sottocartelle
-    # Tassativamente escluse dalla sovrascrittura di Git per preservare i file multimediali caricati
     - /bin/mkdir -p $DEPLOYPATH/uploads/images/
     - /bin/mkdir -p $DEPLOYPATH/uploads/videos/
 
-    # 3. Sincronizza i file compilati pronti per la produzione (cartella dist/) dentro public_html
+    # 3. Sincronizza i file compilati pronti per la produzione (cartella produzione_cpanel/) dentro public_html
     - /bin/rsync -av --delete \
         --exclude='.git*' \
         --exclude='.cpanel.yml' \
@@ -24,7 +23,7 @@ deployment:
         --exclude='db.php' \
         --exclude='config.php' \
         --exclude='.env' \
-        ./dist/ $DEPLOYPATH
+        ./produzione_cpanel/ $DEPLOYPATH
 
     # 4. Assegna i corretti permessi su file e cartelle per server LiteSpeed / Apache su vHosting
     - /bin/find $DEPLOYPATH -type d -exec /bin/chmod 755 {} \;

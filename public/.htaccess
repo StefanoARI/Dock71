@@ -10,6 +10,18 @@
 AddDefaultCharset UTF-8
 DefaultLanguage it-IT
 
+# Forza i MIME Types corretti per moduli ES6 JavaScript, CSS, PDF e Immagini su LiteSpeed/Apache
+<IfModule mod_mime.c>
+    AddType application/javascript .js .mjs
+    AddType text/javascript .js .mjs
+    AddType text/css .css
+    AddType application/json .json
+    AddType image/webp .webp
+    AddType image/avif .avif
+    AddType image/svg+xml .svg
+    AddType application/pdf .pdf
+</IfModule>
+
 # Disabilita listing delle cartelle
 Options -Indexes +FollowSymLinks
 
