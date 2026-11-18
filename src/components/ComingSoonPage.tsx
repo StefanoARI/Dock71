@@ -254,9 +254,9 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
 
       {/* Minimal Header */}
       <header className="sticky top-0 z-40 bg-[#FFF9EB]/95 backdrop-blur-md border-b-2 border-[#E8E2D4] shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 p-0.5 rounded-full bg-white border-2 border-dock-mustard shadow-md shrink-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-0 sm:h-20 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3">
+          <div className="flex items-center justify-center sm:justify-start gap-3 w-full sm:w-auto">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 p-0.5 rounded-full bg-white border-2 border-dock-mustard shadow-md shrink-0">
               <img
                 src={PUB_IMAGES.logo}
                 alt="Dock 71 Cantù Logo"
@@ -278,7 +278,7 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={handleOpenFoodMenu}
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#F3EDDF] hover:bg-[#E8E2D4] text-[#1D1C13] border border-[#E8E2D4] font-epilogue font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
@@ -301,7 +301,7 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
 
             <button
               onClick={() => scrollToSection('sezione-prenota-coming-soon')}
-              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-xl bg-dock-burgundy hover:bg-dock-burgundy-dark text-white font-chunky text-xs uppercase tracking-wider shadow-md border border-dock-burgundy-light transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-xl bg-dock-burgundy hover:bg-dock-burgundy-dark text-white font-chunky text-xs uppercase tracking-wider shadow-md border border-dock-burgundy-light transition-all cursor-pointer"
             >
               <span className="material-symbols-outlined notranslate text-[18px] text-dock-mustard">
                 event_seat
