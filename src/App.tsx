@@ -53,13 +53,18 @@ export default function App() {
   const [parkingView, setParkingView] = useState<'piazzale' | 'retro'>('piazzale');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Sync iniziale URL (permette accesso diretto a #admin o /admin)
+  // Sync iniziale URL e cambio hash (permette accesso diretto segreto a #admin o /admin)
   React.useEffect(() => {
-    const path = window.location.pathname.toLowerCase();
-    const hash = window.location.hash.toLowerCase();
-    if (path.includes('admin') || path.includes('login-segreto') || hash === '#admin') {
-      setCurrentView('admin');
-    }
+    const checkAdminRoute = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path.includes('admin') || path.includes('login-segreto') || hash === '#admin') {
+        setCurrentView('admin');
+      }
+    };
+    checkAdminRoute();
+    window.addEventListener('hashchange', checkAdminRoute);
+    return () => window.removeEventListener('hashchange', checkAdminRoute);
   }, []);
 
   const showToast = (msg: string) => {
@@ -1922,14 +1927,6 @@ export default function App() {
               </button>
               <button onClick={() => showToast('Termini di servizio Dock 71 Cantù.')} className="hover:text-dock-burgundy transition-colors cursor-pointer">
                 TERMINI
-              </button>
-              <button
-                onClick={() => handleNavClick('admin')}
-                className="hover:text-dock-burgundy transition-colors cursor-pointer text-dock-burgundy font-bold flex items-center gap-1"
-                title="Area Riservata Amministrazione CRM 2FA"
-              >
-                <span className="material-symbols-outlined notranslate text-[14px]">lock</span>
-                AREA RISERVATA
               </button>
             </div>
           </div>

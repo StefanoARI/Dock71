@@ -1017,19 +1017,10 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
 
       {/* Minimal Footer */}
       <footer className="bg-[#FAF7F2] border-t-2 border-[#E8E2D4] py-6 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7A7265]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-[#7A7265] text-center">
           <div>
             © {new Date().getFullYear()} <strong>DOCK 71 CANTÙ</strong> • Via Milano 71, 22063 Cantù
             (CO) • Tel. +39 031 712063
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onOpenAdmin}
-              className="text-[#7B2039] font-bold hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              <span className="material-symbols-outlined notranslate text-[14px]">lock</span>
-              AREA RISERVATA
-            </button>
           </div>
         </div>
       </footer>
