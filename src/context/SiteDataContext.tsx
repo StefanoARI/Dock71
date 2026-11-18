@@ -780,6 +780,114 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem(STORAGE_KEYS.EMAILS, JSON.stringify(sentEmails));
   }, [sentEmails]);
 
+  // Helper per chiamare il backend PHP / MySQL / SMTP su vHosting
+  const callBackendCrmApi = async (payload: Record<string, unknown>) => {
+    const endpoints = ['/backend/process-form.php', '/produzione_cpanel/backend/process-form.php'];
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({ ...payload, ajax: '1' }),
+        });
+        if (res.ok) {
+          return await res.json().catch(() => null);
+        }
+      } catch {
+        // Prova endpoint successivo o continua in modalità locale
+      }
+    }
+    return null;
+  };
+
+  // Sincronizzazione automatica dal database MySQL all'avvio (per mostrare nel Gestionale le prenotazioni salvate nel DB)
+  useEffect(() => {
+    const syncFromMySql = async () => {
+      const endpoints = [
+        '/backend/process-form.php?action=list_crm_data&ajax=1',
+        '/produzione_cpanel/backend/process-form.php?action=list_crm_data&ajax=1',
+      ];
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url, { headers: { Accept: 'application/json' } });
+          if (!res.ok) continue;
+          const data = await res.json().catch(() => null);
+          if (data && data.success) {
+            if (Array.isArray(data.bookings) && data.bookings.length > 0) {
+              const dbBookings: BookingRecord[] = data.bookings.map((row: Record<string, unknown>) => {
+                const rawSt = String(row.status || 'In Attesa');
+                const normStatus: BookingStatus =
+                  rawSt === 'confirmed' || rawSt === 'Confermato'
+                    ? 'Confermato'
+                    : rawSt === 'cancelled' || rawSt === 'Rifiutato'
+                    ? 'Rifiutato'
+                    : 'In Attesa';
+                return {
+                  id: `db-bk-${row.id}`,
+                  bookingCode: String(row.booking_code || `DK71-${row.id}`),
+                  date: String(row.booking_date || ''),
+                  timeSlot: String(row.time_slot || '20:30'),
+                  name: String(row.name || 'Cliente'),
+                  email: String(row.email || ''),
+                  phone: String(row.phone || ''),
+                  guests: Number(row.guests) || 2,
+                  area: String(row.room_area || 'Tavolo Standard'),
+                  notes: String(row.notes || ''),
+                  status: normStatus,
+                  createdAt: String(row.created_at || formatNowTimestamp()),
+                  source: 'Pagina Prenota',
+                  gdprAccepted: true,
+                };
+              });
+              setBookings((prev) => {
+                const dbCodes = new Set(dbBookings.map((b) => b.bookingCode));
+                const localOnly = prev.filter((b) => !dbCodes.has(b.bookingCode) && !b.id.startsWith('db-bk-'));
+                return [...dbBookings, ...localOnly];
+              });
+            }
+
+            if (Array.isArray(data.contacts) && data.contacts.length > 0) {
+              const dbContacts: ContactRecord[] = data.contacts.map((row: Record<string, unknown>) => {
+                const rawSt = String(row.status || 'Nuovo');
+                const normStatus: ContactStatus =
+                  rawSt === 'replied' || rawSt === 'Risposto'
+                    ? 'Risposto'
+                    : rawSt === 'read' || rawSt === 'Letto'
+                    ? 'Letto'
+                    : 'Nuovo';
+                return {
+                  id: `db-ct-${row.id}`,
+                  name: String(row.name || 'Cliente'),
+                  email: String(row.email || ''),
+                  phone: String(row.phone || ''),
+                  subject: String(row.subject || 'Richiesta Contatto'),
+                  message: String(row.message || ''),
+                  createdAt: String(row.created_at || formatNowTimestamp()),
+                  ip: String(row.ip_address || '127.0.0.1'),
+                  status: normStatus,
+                  source: 'Pagina Contatti',
+                  gdprAccepted: true,
+                };
+              });
+              setContacts((prev) => {
+                const dbIds = new Set(dbContacts.map((c) => c.id));
+                const localOnly = prev.filter((c) => !dbIds.has(c.id) && !c.id.startsWith('db-ct-'));
+                return [...dbContacts, ...localOnly];
+              });
+            }
+            break;
+          }
+        } catch {
+          // Ambiente di anteprima senza PHP
+        }
+      }
+    };
+    syncFromMySql();
+  }, []);
+
   // Gestione Menù
   const addMenuItem = (item: Omit<DynamicMenuItem, 'id'>) => {
     const newItem: DynamicMenuItem = {
@@ -943,6 +1051,20 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
     setBookings(prev => [newBooking, ...prev]);
 
+    // Invia al backend PHP per salvataggio su MySQL + invio email di riepilogo al cliente e notifica a info@dock71birreria.it via SMTP
+    void callBackendCrmApi({
+      action: 'booking',
+      booking_code: newBooking.bookingCode,
+      name: newBooking.name,
+      email: newBooking.email,
+      phone: newBooking.phone,
+      booking_date: newBooking.date,
+      time_slot: newBooking.timeSlot,
+      guests: newBooking.guests,
+      area: newBooking.area,
+      notes: newBooking.notes
+    });
+
     // Registra anche il consenso GDPR associato al form di prenotazione
     if (booking.gdprAccepted) {
       addConsentLog({
@@ -1053,16 +1175,48 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setSentEmails(prev => [generatedEmail!, ...prev]);
     }
 
+    // Invia comando al backend PHP per aggiornare lo stato su MySQL e spedire realmente l'email SMTP (Conferma o Rifiuto con motivazione)
+    void callBackendCrmApi({
+      action: 'update_booking_status',
+      booking_id: target.id.startsWith('db-bk-') ? Number(target.id.replace('db-bk-', '')) : 0,
+      booking_code: target.bookingCode,
+      new_status: status,
+      rejection_reason: rejectionReason || '',
+      name: target.name,
+      email: target.email,
+      date: target.date,
+      time_slot: target.timeSlot,
+      guests: target.guests
+    });
+
     return generatedEmail;
   };
 
   const deleteBooking = (id: string) => {
+    const target = bookings.find(b => b.id === id);
     setBookings(prev => prev.filter(b => b.id !== id));
+    if (target) {
+      void callBackendCrmApi({
+        action: 'delete_records',
+        target_table: 'bookings',
+        ids: target.id.startsWith('db-bk-') ? [Number(target.id.replace('db-bk-', ''))] : [],
+        codes: [target.bookingCode]
+      });
+    }
   };
 
   const deleteBookingsBulk = (ids: string[]) => {
     const idSet = new Set(ids);
+    const targets = bookings.filter(b => idSet.has(b.id));
     setBookings(prev => prev.filter(b => !idSet.has(b.id)));
+    if (targets.length > 0) {
+      void callBackendCrmApi({
+        action: 'delete_records',
+        target_table: 'bookings',
+        ids: targets.filter(t => t.id.startsWith('db-bk-')).map(t => Number(t.id.replace('db-bk-', ''))),
+        codes: targets.map(t => t.bookingCode)
+      });
+    }
   };
 
   const addContact = (
@@ -1077,6 +1231,16 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       status: 'Nuovo'
     };
     setContacts(prev => [newContact, ...prev]);
+
+    // Invia al backend PHP per salvataggio su MySQL + invio email di riepilogo al cliente e notifica a info@dock71birreria.it via SMTP
+    void callBackendCrmApi({
+      action: 'contact',
+      name: newContact.name,
+      email: newContact.email,
+      phone: newContact.phone,
+      subject: newContact.subject,
+      message: newContact.message
+    });
 
     if (contact.gdprAccepted) {
       addConsentLog({
@@ -1144,6 +1308,17 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
 
     setSentEmails(prev => [emailLog, ...prev]);
+
+    // Invia al backend PHP per aggiornare stato a 'Risposto' su MySQL e inviare realmente l'email di risposta via SMTP
+    void callBackendCrmApi({
+      action: 'reply_contact',
+      contact_id: target.id.startsWith('db-ct-') ? Number(target.id.replace('db-ct-', '')) : 0,
+      name: target.name,
+      email: target.email,
+      reply_message: replyMessage,
+      original_message: target.message
+    });
+
     return emailLog;
   };
 
@@ -1153,11 +1328,26 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteContact = (id: string) => {
     setContacts(prev => prev.filter(c => c.id !== id));
+    if (id.startsWith('db-ct-')) {
+      void callBackendCrmApi({
+        action: 'delete_records',
+        target_table: 'contacts',
+        ids: [Number(id.replace('db-ct-', ''))]
+      });
+    }
   };
 
   const deleteContactsBulk = (ids: string[]) => {
     const idSet = new Set(ids);
     setContacts(prev => prev.filter(c => !idSet.has(c.id)));
+    const dbIds = ids.filter(i => i.startsWith('db-ct-')).map(i => Number(i.replace('db-ct-', '')));
+    if (dbIds.length > 0) {
+      void callBackendCrmApi({
+        action: 'delete_records',
+        target_table: 'contacts',
+        ids: dbIds
+      });
+    }
   };
 
   const addConsentLog = (consent: Omit<ConsentRecord, 'id' | 'timestamp' | 'ip'>) => {

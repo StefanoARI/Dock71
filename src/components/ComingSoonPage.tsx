@@ -8,9 +8,112 @@ interface ComingSoonPageProps {
   onShowToast: (msg: string) => void;
 }
 
+const KITCHEN_PDF_URL = '/assets/aistudio/Dock71_-_menu_per_sito_7172863f.pdf';
 const BEVERAGE_PDF_URL = '/assets/aistudio/RB_Menu_DOCK71_copia_8d78ba02.pdf';
-const CANVA_EMBED_URL = 'https://www.canva.com/design/DAHaoDBSPfc/RHzqPmJvwsViEPu1b1VdUA/view?embed';
-const CANVA_VIEW_URL = 'https://www.canva.com/design/DAHaoDBSPfc/RHzqPmJvwsViEPu1b1VdUA/view';
+
+const KITCHEN_STUZZICHERIE = [
+  { name: 'PATATE DEL MOZZO', price: '€ 4,50', desc: 'patate fritte a buccia spessa' },
+  { name: 'CROCCHETTE DI PATATE', price: '€ 5,00', desc: '' },
+  { name: 'ANELLI DI CIPOLLA', price: '€ 7,00', desc: 'in pastella alla birra IPA, croccanti e dorati, serviti con salsa tartara' },
+  { name: 'BASKET DI FRITTINI', price: '€ 10,00', desc: 'nuggets di pollo (4pz), crocchette di patate (4 pz), anelli di cipolla (4pz)' },
+  { name: 'POLPETTE DI PULLED PORK SFILACCIATO', price: '€ 7,00', desc: 'cotte a bassa temperatura con cuore fondente di scamorza affumicata (6pz)' },
+  { name: 'NACHOS SEMPLICI', price: '€ 7,00', desc: 'con cheddar fuso, salsa messicana' },
+  { name: 'NACHOS FARCITI', price: '€ 10,00', desc: 'con salsa messicana, guacamole, jalapeno, cheddar fuso, pulled pork' },
+  { name: 'RED HOT JALAPENOS', price: '€ 8,00', desc: 'peperoni rossi fritti ripieni di formaggio (4pz)' },
+  { name: 'TAGLIERE DEL PORTO', price: '€ 15,00', desc: 'prosciutto crudo, salame filzetta, coppa, gnocco fritto' },
+];
+
+const KITCHEN_GRIGLIA = [
+  { name: 'TAGLIATA DI MANZO', price: '€ 18,00', desc: '250g con rucola, pomodorini' },
+  { name: 'GALLETTO DEI DOCKS', price: '€ 18,00', desc: 'marinato alla birra e pepe rosa servito con patate del mozzo' },
+  { name: 'COSTATA DI MANZO', price: '€ 36,00', desc: '500g servita con verdure alla griglia' },
+  { name: 'RIBS DI MAIALE', price: '€ 19,00', desc: 'cotte a bassa temperatura con salsa BBQ, crauti' },
+  { name: 'GRAN GRIGLIATA', price: '€ 25,00', desc: 'Tagliata di manzo, alette di pollo, arrosticini, salsiccia arrotolata, servita con verdure grigliate, patate del mozzo' },
+  { name: 'ARROSTICINI', price: '€ 15,00', desc: 'in brocca | 10 pz' },
+  { name: 'ARROSTICINI AL PEZZO', price: '€ 1,80', desc: '' },
+];
+
+const KITCHEN_TARTARE = [
+  {
+    name: 'TARTARE DEL PRIMO UFFICIALE',
+    price: '€ 12,00',
+    desc: "battuta di manzo condita con frutto del cappero, trito di acciughe, senape in grani, tuorlo d'uovo cbt",
+  },
+  {
+    name: 'TARTARE DI STIVA',
+    price: '€ 14,00',
+    desc: 'battuta di manzo, gorgonzola, noci, funghi trifolati',
+  },
+  {
+    name: 'NAVE AMMIRAGLIA',
+    price: '€ 12,00',
+    desc: 'battuta di manzo servita su letto di stracciatella di bufala con olio al basilico, pesto di pomodori secchi, cialda al Parmigiano',
+  },
+];
+
+const KITCHEN_PIZZE_CLASSICHE = [
+  { name: 'MARGHERITA', price: '€ 7,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, basilico' },
+  { name: 'AMERICANA', price: '€ 9,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, wurstel, patatine' },
+  { name: 'MARINARA', price: '€ 7,00', desc: 'pomodoro Frulloro, origano, aglio' },
+  { name: 'QUATTRO STAGIONI', price: '€ 12,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, prosciutto cotto, salame piccante, funghi, olive' },
+  { name: 'QUATTRO FORMAGGI', price: '€ 11,00', desc: 'mozzarella fior di latte, gorgonzola, taleggio, scamorza affumicata' },
+  { name: 'CAPRICCIOSA', price: '€ 11,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, prosciutto cotto, funghi, carciofi, olive' },
+  { name: 'ORTOLANA', price: '€ 10,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, verdure di stagione' },
+  { name: 'BUFALINA', price: '€ 13,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, bocconi di bufala fresca, basilico' },
+  { name: 'NAPOLI', price: '€ 12,50', desc: 'pomodoro Frulloro, mozzarella fior di latte, origano, acciughe' },
+  { name: 'PROSCIUTTO', price: '€ 10,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, prosciutto cotto' },
+  { name: 'DIAVOLA', price: '€ 9,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, spianata calabra' },
+  { name: 'PROSCIUTTO E FUNGHI', price: '€ 11,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, prosciutto cotto, funghi' },
+  { name: 'SIMPATICA', price: '€ 11,50', desc: 'mozzarella fior di latte, panna, prosciutto cotto, funghi' },
+  { name: 'SPECK E ZOLA', price: '€ 13,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, speck, gorgonzola' },
+  { name: 'SALSICCIA E FRIARIELLI', price: '€ 12,00', desc: 'mozzarella fior di latte, salsiccia, friarielli' },
+];
+
+const KITCHEN_PIZZE_SPECIALI = [
+  { name: 'DOCK71', price: '€ 15,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, melanzane, funghi, carciofi, acciughe, olive' },
+  { name: 'CAZZA LA RANDA', price: '€ 14,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, salame piccante, gorgonzola Dop, cipolla caramellata' },
+  { name: 'FUMO DI STIVA', price: '€ 16,00', desc: 'mozzarella fior di latte, scamorza affumicata, pasta di salame, patate al forno profumate al rosmarino, riduzione di birra IPA' },
+  { name: 'FIUME IN PIENA', price: '€ 13,00', desc: 'pomodoro Frulloro, mozzarella fior di latte, melanzane, salsiccia, basilico, ricotta salata' },
+  { name: 'PORCHETTARA', price: '€ 13,00', desc: 'mozzarella fior di latte, scamorza affumicata, porchetta, patate al forno' },
+];
+
+const KITCHEN_PANINI = [
+  { name: 'IL RIMORCHIATORE', price: '€ 12,00', desc: 'pane "potato roll", petto di pollo crispy, bacon, pomodoro, lattuga, maionese' },
+  { name: 'IL FARO', price: '€ 13,00', desc: 'pane "potato roll", pasta di salame scottata, scamorza affumicata, friarielli piccanti' },
+  { name: 'IL 71', price: '€ 14,50', desc: 'pane "potato roll", smash burger di manzo 180g, cheddar, bacon, cipolla caramellata, maionese, salsa BBQ' },
+  { name: 'STIVA PIENA', price: '€ 12,00', desc: 'pane "gourmet potato roll", pulled pork, coleslaw' },
+  { name: 'ARMATORE DEI DOCKS', price: '€ 15,00', desc: 'pane "potato roll", scottona 200g, gorgonzola piccante, pere saltate, noci' },
+  { name: 'IL PANINO DEL CAPITANO', price: '€ 13,50', desc: 'pane "potato roll", porchetta alla piastra, patate al forno, scamorza, maionese' },
+  { name: 'HOT DOG DEL DOCKLANDS', price: '€ 10,00', desc: 'pane "potato roll", wurstel, crauti, cipolla croccante, senape, ketchup' },
+  { name: 'LA NEBBIA SUL DOCK', price: '€ 10,00', desc: 'pane "potato roll", burger di patate e melanzane, pomodoro ramato, salsa al basilico, insalata, cetriolo' },
+];
+
+const KITCHEN_PICCOLI_MARINAI = [
+  { name: 'NUGGETS DI POLLO', desc: 'panati e fritti' },
+  { name: 'HOT DOG', desc: 'con salse a scelta' },
+  { name: 'BURGER DI POLLO', desc: 'Panino con cotoletta di pollo, cheddar, bacon croccante e maionese' },
+  { name: 'BURGER DI MANZO', desc: 'Panino con carne di manzo con cheddar e salsa a scelta' },
+];
+
+const KITCHEN_TOP_SELLER = [
+  {
+    name: 'IL FISH AND CHIPS DEL VECCHIO MOLO',
+    price: '€ 21,00',
+    desc: 'Un filetto generoso di merluzzo bianco fresco, in pastella artigianale leggera e croccante a base di birra Ale bionda ghiacciata e un pizzico di malto. Accompagnato da patate del mozzo e da una vellutata salsa tartara.',
+  },
+  {
+    name: 'LONDON BEEF PIE',
+    price: '€ 18,00',
+    desc: 'Pasticcio di carne di manzo cotto lentamente con birra scura, crosta di pasta sfoglia dorata. Servito con soffice purè e salsa gravy al prezzemolo fresco.',
+  },
+];
+
+const KITCHEN_DOLCI = [
+  { name: 'BIRRAMISÙ', price: '€ 6,00', note: '' },
+  { name: 'PANNA COTTA CON TOPPING', price: '€ 6,00', note: '' },
+  { name: 'TORTA DEL GIORNO', price: '€ 5,00', note: '' },
+  { name: 'ANANAS ALLA PIASTRA', price: '€ 5,00', note: '+ pallina di gelato + € 1,50' },
+];
 
 const DRAFT_BEERS = [
   {
@@ -163,6 +266,7 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
 }) => {
   const { addBooking, addConsentLog } = useSiteData();
   const [activeMenuTab, setActiveMenuTab] = useState<'food' | 'beverage'>('food');
+  const [foodViewMode, setFoodViewMode] = useState<'interactive' | 'pdf'>('pdf');
   const [beverageViewMode, setBeverageViewMode] = useState<'interactive' | 'pdf'>('pdf');
 
   // Booking Form State
@@ -226,21 +330,6 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
       analyticsAccepted: true,
       marketingAccepted: false,
     });
-
-    try {
-      const formData = new FormData();
-      formData.append('name', name.trim());
-      formData.append('phone', phone.trim());
-      formData.append('email', email.trim());
-      formData.append('booking_date', date);
-      formData.append('time_slot', timeSlot);
-      formData.append('guests', String(guests));
-      formData.append('notes', notes.trim());
-      formData.append('privacy_consent', '1');
-      await fetch('/backend/submit-booking.php', { method: 'POST', body: formData }).catch(() => null);
-    } catch {
-      // Gestito dal context locale in anteprima
-    }
 
     setIsSubmitting(false);
     setConfirmedCode(generatedCode);
@@ -399,7 +488,7 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
         </section>
 
         {/* =================================================================== */}
-        {/* SEZIONE 1: MENÙ CUCINA (CANVA EMBED) & CARTA BEVERAGE (PDF) */}
+        {/* SEZIONE 1: MENÙ CUCINA (PDF) & CARTA BEVERAGE (PDF) */}
         {/* =================================================================== */}
         <section
           id="sezione-menu-coming-soon"
@@ -428,7 +517,7 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
                 <span className="material-symbols-outlined notranslate text-[18px]">
                   lunch_dining
                 </span>
-                Menù Cucina
+                Menù Cucina (PDF)
               </button>
 
               <button
@@ -447,31 +536,56 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
             </div>
           </div>
 
-          {/* TAB 1: MENÙ CUCINA INCORPORATO DA CANVA */}
+          {/* TAB 1: MENÙ CUCINA (PDF UFFICIALE + VERSIONE DIGITALE LEGGIBILE) */}
           {activeMenuTab === 'food' && (
-            <div className="bg-white rounded-3xl p-4 sm:p-8 border-2 border-[#E8E2D4] shadow-lg space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="bg-white rounded-3xl p-4 sm:p-8 border-2 border-[#E8E2D4] shadow-lg space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#E8E2D4]">
                 <div>
-                  <h3 className="font-chunky text-xl sm:text-2xl text-[#7B2039] uppercase">
-                    Menù Griglia, Burger &amp; Pizze • Dock 71
+                  <span className="inline-block px-2.5 py-0.5 rounded bg-[#7B2039] text-white font-marker text-[11px] uppercase mb-1">
+                    MENÙ CUCINA UFFICIALE DOCK 71
+                  </span>
+                  <h3 className="font-chunky text-xl sm:text-2xl text-[#1D1C13] uppercase">
+                    Stuzzicherie, Griglia, Pizze, Panini &amp; Dolci
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#554245]">
-                    Sfoglia le pagine interattive qui sotto oppure aprilo a tutto schermo.
-                  </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="inline-flex p-1 rounded-xl bg-[#F3EDDF] border border-[#E8E2D4]">
+                    <button
+                      onClick={() => setFoodViewMode('pdf')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-epilogue font-bold uppercase cursor-pointer transition-all ${
+                        foodViewMode === 'pdf'
+                          ? 'bg-[#7B2039] text-white'
+                          : 'text-[#554245] hover:text-[#1D1C13]'
+                      }`}
+                    >
+                      Visualizzatore PDF
+                    </button>
+                    <button
+                      onClick={() => setFoodViewMode('interactive')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-epilogue font-bold uppercase cursor-pointer transition-all ${
+                        foodViewMode === 'interactive'
+                          ? 'bg-[#7B2039] text-white'
+                          : 'text-[#554245] hover:text-[#1D1C13]'
+                      }`}
+                    >
+                      Lettura Rapida Mobile
+                    </button>
+                  </div>
+
                   <a
-                    href={CANVA_VIEW_URL}
+                    href={KITCHEN_PDF_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7B2039] hover:bg-dock-burgundy-dark text-white font-epilogue font-bold text-xs uppercase tracking-wider shadow-xs transition-all cursor-pointer"
+                    download="Menu_Cucina_Dock71.pdf"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-dock-burgundy hover:bg-dock-burgundy-dark text-white font-epilogue font-bold text-xs uppercase tracking-wider shadow-xs transition-all cursor-pointer"
                   >
                     <span className="material-symbols-outlined notranslate text-[16px]">
-                      open_in_new
+                      download
                     </span>
-                    Apri Menù a Schermo Intero
+                    Scarica / Apri PDF
                   </a>
+
                   <button
                     onClick={() => setActiveMenuTab('beverage')}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#336859] hover:bg-emerald-900 text-white font-epilogue font-bold text-xs uppercase tracking-wider shadow-xs transition-all cursor-pointer"
@@ -484,39 +598,336 @@ export const ComingSoonPage: React.FC<ComingSoonPageProps> = ({
                 </div>
               </div>
 
-              {/* CODICE INCORPORAMENTO CANVA FORNITO */}
-              <div
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  height: 0,
-                  paddingTop: '70.0000%',
-                  paddingBottom: 0,
-                  boxShadow: '0 2px 8px 0 rgba(63,69,81,0.16)',
-                  marginTop: '1.6em',
-                  marginBottom: '0.9em',
-                  overflow: 'hidden',
-                  borderRadius: '8px',
-                  willChange: 'transform',
-                }}
-              >
-                <iframe
-                  loading="lazy"
-                  title="Menù Dock 71 Cantù Canva"
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    top: 0,
-                    left: 0,
-                    border: 'none',
-                    padding: 0,
-                    margin: 0,
-                  }}
-                  src={CANVA_EMBED_URL}
-                  allowFullScreen
-                  allow="fullscreen"
-                />
+              {foodViewMode === 'pdf' && (
+                <div className="space-y-4">
+                  <div className="w-full h-[650px] sm:h-[850px] rounded-2xl overflow-hidden border-2 border-[#E8E2D4] bg-[#FAF7F2]">
+                    <iframe
+                      src={`${KITCHEN_PDF_URL}#view=FitH`}
+                      title="Menù Cucina Dock 71 PDF"
+                      className="w-full h-full border-0"
+                    />
+                  </div>
+                  <p className="text-center text-xs text-[#7A7265]">
+                    Se il tuo dispositivo mobile non mostra l&apos;anteprima PDF qui sopra, clicca su{' '}
+                    <button
+                      onClick={() => setFoodViewMode('interactive')}
+                      className="text-[#7B2039] font-bold underline cursor-pointer"
+                    >
+                      Lettura Rapida Mobile
+                    </button>{' '}
+                    oppure{' '}
+                    <a
+                      href={KITCHEN_PDF_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#7B2039] font-bold underline"
+                    >
+                      apri direttamente il PDF
+                    </a>
+                    .
+                  </p>
+                </div>
+              )}
+
+              {/* VERSIONE SFOGLIABILE AD ALTA LEGGIBILITÀ DEL PDF CUCINA */}
+              <div className="space-y-8 pt-2">
+                {/* 1. STUZZICHERIE */}
+                <div className="bg-[#FAF7F2] rounded-2xl p-5 sm:p-6 border border-[#E8E2D4] space-y-4">
+                  <div className="flex items-center gap-2 border-b-2 border-[#7B2039] pb-2">
+                    <span className="material-symbols-outlined notranslate text-[#7B2039]">
+                      tapas
+                    </span>
+                    <h4 className="font-chunky text-xl sm:text-2xl text-[#7B2039] uppercase">
+                      Stuzzicherie
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {KITCHEN_STUZZICHERIE.map((item) => (
+                      <div
+                        key={item.name}
+                        className="bg-white p-4 rounded-xl border border-[#E8E2D4] flex flex-col justify-between gap-1.5 shadow-2xs"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-chunky text-sm sm:text-base text-[#1D1C13]">
+                            {item.name}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-lg bg-[#7B2039] text-white font-chunky text-xs shrink-0">
+                            {item.price}
+                          </span>
+                        </div>
+                        {item.desc && (
+                          <p className="text-xs text-[#554245] leading-relaxed">{item.desc}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. DAI FUOCHI... ALLA GRIGLIA & 3. TARTARE DEL MOLO */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-[#FAF7F2] rounded-2xl p-5 sm:p-6 border border-[#E8E2D4] space-y-4">
+                    <div className="flex items-center gap-2 border-b-2 border-[#C88B1F] pb-2">
+                      <span className="material-symbols-outlined notranslate text-[#B87712]">
+                        outdoor_grill
+                      </span>
+                      <h4 className="font-chunky text-xl text-[#B87712] uppercase">
+                        Dai Fuochi... Alla Griglia
+                      </h4>
+                    </div>
+                    <div className="space-y-3">
+                      {KITCHEN_GRIGLIA.map((item) => (
+                        <div
+                          key={item.name}
+                          className="bg-white p-3.5 rounded-xl border border-[#E8E2D4] space-y-1 shadow-2xs"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-chunky text-sm sm:text-base text-[#1D1C13]">
+                              {item.name}
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-lg bg-[#C88B1F] text-white font-chunky text-xs shrink-0">
+                              {item.price}
+                            </span>
+                          </div>
+                          {item.desc && (
+                            <p className="text-xs text-[#554245] leading-relaxed">{item.desc}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#FAF7F2] rounded-2xl p-5 sm:p-6 border border-[#E8E2D4] space-y-4">
+                    <div className="border-b-2 border-[#336859] pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined notranslate text-[#336859]">
+                          restaurant
+                        </span>
+                        <h4 className="font-chunky text-xl text-[#336859] uppercase">
+                          Tartare del Molo
+                        </h4>
+                      </div>
+                      <p className="text-[11px] font-semibold text-[#554245] mt-0.5">
+                        120 g di Scottona, servite con crostini di pane casereccio tostato
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      {KITCHEN_TARTARE.map((item) => (
+                        <div
+                          key={item.name}
+                          className="bg-white p-4 rounded-xl border border-[#E8E2D4] space-y-1.5 shadow-2xs"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-chunky text-sm sm:text-base text-[#1D1C13]">
+                              {item.name}
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-lg bg-[#336859] text-white font-chunky text-xs shrink-0">
+                              {item.price}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#554245] leading-relaxed">{item.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. PIZZE CLASSICHE & 5. PIZZE SPECIALI DEL PORTO */}
+                <div className="bg-[#FAF7F2] rounded-2xl p-5 sm:p-6 border border-[#E8E2D4] space-y-6">
+                  <div>
+                    <div className="flex items-center gap-2 border-b-2 border-[#7B2039] pb-2 mb-4">
+                      <span className="material-symbols-outlined notranslate text-[#7B2039]">
+                        local_pizza
+                      </span>
+                      <h4 className="font-chunky text-xl sm:text-2xl text-[#7B2039] uppercase">
+                        Pizze Classiche
+                      </h4>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                      {KITCHEN_PIZZE_CLASSICHE.map((pizza) => (
+                        <div
+                          key={pizza.name}
+                          className="bg-white p-3.5 rounded-xl border border-[#E8E2D4] flex flex-col justify-between gap-1.5 shadow-2xs"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-chunky text-sm text-[#1D1C13]">{pizza.name}</span>
+                            <span className="px-2 py-0.5 rounded bg-[#7B2039] text-white font-chunky text-xs shrink-0">
+                              {pizza.price}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#554245] leading-relaxed">{pizza.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#336859] pb-2 mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined notranslate text-[#336859]">
+                          workspace_premium
+                        </span>
+                        <h4 className="font-chunky text-xl sm:text-2xl text-[#336859] uppercase">
+                          Pizze Speciali del Porto
+                        </h4>
+                      </div>
+                      <span className="px-3 py-1 rounded-lg bg-[#1D1C13] text-[#E0A93B] font-marker text-[11px] uppercase">
+                        Chiedi al nostro staff la birra perfetta da abbinare!
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {KITCHEN_PIZZE_SPECIALI.map((pizza) => (
+                        <div
+                          key={pizza.name}
+                          className="bg-white p-4 rounded-xl border border-[#336859]/30 flex flex-col justify-between gap-1.5 shadow-2xs"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-chunky text-base text-[#1D1C13]">{pizza.name}</span>
+                            <span className="px-2.5 py-0.5 rounded-lg bg-[#336859] text-white font-chunky text-xs shrink-0">
+                              {pizza.price}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#554245] leading-relaxed">{pizza.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. PANINI DEL DOCKLANDS & 7. MENÙ DEI PICCOLI MARINAI */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 bg-[#1D1C13] text-white rounded-2xl p-5 sm:p-6 space-y-4">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-white/20 pb-3">
+                      <div>
+                        <h4 className="font-chunky text-xl sm:text-2xl text-dock-mustard uppercase">
+                          Panini del Docklands
+                        </h4>
+                        <p className="text-xs text-white/80">
+                          Serviti con patate del mozzo e salsa Dock
+                        </p>
+                      </div>
+                      <span className="px-3 py-1 rounded-lg bg-[#7B2039] text-white font-chunky text-[11px] uppercase">
+                        Coperto € 1 • Acqua € 2 • Caffè € 2
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {KITCHEN_PANINI.map((item) => (
+                        <div
+                          key={item.name}
+                          className="bg-white/10 p-3.5 rounded-xl border border-white/10 space-y-1.5"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-chunky text-sm text-dock-mustard">
+                              {item.name}
+                            </span>
+                            <span className="font-chunky text-xs bg-white text-[#1D1C13] px-2 py-0.5 rounded shrink-0">
+                              {item.price}
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/85 leading-relaxed">{item.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#FAF7F2] rounded-2xl p-5 sm:p-6 border-2 border-[#7B2039] flex flex-col justify-between space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2 border-b-2 border-[#7B2039] pb-2">
+                        <h4 className="font-chunky text-lg text-[#7B2039] uppercase">
+                          Menù dei Piccoli Marinai
+                        </h4>
+                        <span className="px-3 py-1 rounded-full bg-dock-mustard text-[#1D1C13] font-chunky text-sm shrink-0">
+                          € 10,00
+                        </span>
+                      </div>
+                      <div className="space-y-2.5">
+                        {KITCHEN_PICCOLI_MARINAI.map((kid) => (
+                          <div
+                            key={kid.name}
+                            className="bg-white p-3 rounded-xl border border-[#E8E2D4]"
+                          >
+                            <div className="font-chunky text-xs sm:text-sm text-[#7B2039]">
+                              {kid.name}
+                            </div>
+                            <p className="text-xs text-[#554245] mt-0.5">{kid.desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs font-bold text-[#7B2039] bg-white p-3 rounded-xl border border-[#E8E2D4]">
+                      Tutti i piatti vengono serviti con patatine fritte e accompagnati da acqua o bibita.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 8. DOCK'S TOP SELLER & 9. I DOLCI FIRMATI DOCK71 */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-[#FAF7F2] rounded-2xl p-5 sm:p-6 border border-[#E8E2D4] space-y-4">
+                    <div className="flex items-center gap-2 border-b-2 border-[#7B2039] pb-2">
+                      <span className="material-symbols-outlined notranslate text-[#7B2039]">
+                        stars
+                      </span>
+                      <h4 className="font-chunky text-xl text-[#7B2039] uppercase">
+                        Dock&apos;s Top Seller!
+                      </h4>
+                    </div>
+                    <div className="space-y-3.5">
+                      {KITCHEN_TOP_SELLER.map((top) => (
+                        <div
+                          key={top.name}
+                          className="bg-white p-4 rounded-xl border-2 border-[#E0A93B]/60 space-y-2 shadow-2xs"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-chunky text-base text-[#7B2039]">
+                              {top.name}
+                            </span>
+                            <span className="px-3 py-1 rounded-full bg-dock-mustard text-[#1D1C13] font-chunky text-sm shrink-0">
+                              {top.price}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#554245] leading-relaxed">{top.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#7B2039] text-white rounded-2xl p-5 sm:p-6 shadow-md space-y-4 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 border-b border-white/20 pb-2 mb-4">
+                        <span className="material-symbols-outlined notranslate text-dock-mustard">
+                          cake
+                        </span>
+                        <h4 className="font-chunky text-xl text-dock-mustard uppercase">
+                          I Dolci Firmati Dock71
+                        </h4>
+                      </div>
+                      <ul className="space-y-3">
+                        {KITCHEN_DOLCI.map((dolce) => (
+                          <li
+                            key={dolce.name}
+                            className="flex items-center justify-between gap-3 bg-white/10 px-4 py-3 rounded-xl border border-white/10"
+                          >
+                            <div>
+                              <span className="font-chunky text-sm sm:text-base text-white block">
+                                {dolce.name}
+                              </span>
+                              {dolce.note && (
+                                <span className="text-xs italic text-dock-mustard">
+                                  {dolce.note}
+                                </span>
+                              )}
+                            </div>
+                            <span className="px-2.5 py-1 rounded-lg bg-dock-mustard text-[#1D1C13] font-chunky text-xs shrink-0">
+                              {dolce.price}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <p className="text-[11px] text-white/75 text-center pt-2">
+                      Chiedi al nostro personale informazioni su allergeni e proposte del giorno.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           )}

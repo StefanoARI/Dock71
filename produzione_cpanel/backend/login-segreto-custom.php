@@ -12,6 +12,7 @@
 
 session_start();
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/smtp-mailer.php';
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -24,62 +25,10 @@ $successMsg = null;
 $isAuthenticated = !empty($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
 
 // ============================================================================
-// HELPER: GENERATORE TEMPLATE EMAIL HTML UFFICIALE DOCK 71 CANTÙ
+// HELPER INVIO EMAIL TRAMITE CLIENT SMTP AUTENTICATO (Definito in db.php)
 // ============================================================================
-function buildDock71EmailHtml(string $badgeText, string $badgeColor, string $headline, string $customerName, string $bodyHtml, array $details = []): string {
-    $rowsHtml = '';
-    foreach ($details as $label => $val) {
-        $safeLabel = htmlspecialchars((string)$label, ENT_QUOTES, 'UTF-8');
-        $safeVal   = htmlspecialchars((string)$val, ENT_QUOTES, 'UTF-8');
-        $rowsHtml .= "
-        <tr>
-            <td style='padding:8px 12px;border-bottom:1px solid #E8E2D4;font-size:12px;color:#7A7265;font-weight:bold;text-transform:uppercase;'>{$safeLabel}</td>
-            <td style='padding:8px 12px;border-bottom:1px solid #E8E2D4;font-size:13px;color:#1D1C13;font-weight:bold;text-align:right;'>{$safeVal}</td>
-        </tr>";
-    }
-
-    $detailsTable = !empty($rowsHtml) ? "
-    <table width='100%' cellpadding='0' cellspacing='0' style='background:#FAF7F2;border:1px solid #E8E2D4;border-radius:10px;margin:18px 0;overflow:hidden;'>
-        {$rowsHtml}
-    </table>" : '';
-
-    $safeName = htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8');
-    $safeHeadline = htmlspecialchars($headline, ENT_QUOTES, 'UTF-8');
-    $safeBadge = htmlspecialchars($badgeText, ENT_QUOTES, 'UTF-8');
-
-    return "
-    <!DOCTYPE html>
-    <html lang='it'>
-    <body style='margin:0;padding:24px;background-color:#FAF7F2;font-family:Arial,sans-serif;color:#1D1C13;'>
-        <div style='max-width:600px;margin:0 auto;background-color:#FFF9EB;border:3px solid #7B2039;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(29,28,19,0.12);'>
-            <div style='background-color:#7B2039;padding:20px 24px;text-align:center;border-bottom:4px solid #E0A93B;'>
-                <div style='display:inline-block;padding:4px 12px;background-color:{$badgeColor};color:#FFFFFF;border-radius:20px;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;'>
-                    {$safeBadge}
-                </div>
-                <h1 style='margin:0;color:#FFF9EB;font-size:22px;text-transform:uppercase;letter-spacing:0.5px;'>DOCK 71 • BIRRERIA &amp; PUB INDUSTRIAL</h1>
-                <p style='margin:4px 0 0;color:#E0A93B;font-size:12px;font-weight:bold;'>Via Milano 71, 22063 Cantù (CO)</p>
-            </div>
-            <div style='padding:24px;'>
-                <h2 style='margin-top:0;color:#7B2039;font-size:18px;'>{$safeHeadline}</h2>
-                <p style='font-size:14px;line-height:1.6;color:#1D1C13;'>Ciao <strong>{$safeName}</strong>,</p>
-                <div style='font-size:14px;line-height:1.6;color:#554245;'>{$bodyHtml}</div>
-                {$detailsTable}
-                <p style='font-size:12px;color:#7A7265;margin-top:20px;'>Per qualsiasi necessità puoi contattarci allo <strong>+39 031 712063</strong> o rispondere direttamente a questa comunicazione.</p>
-            </div>
-            <div style='background-color:#F3EDDF;padding:14px 24px;text-align:center;border-top:1px solid #E8E2D4;font-size:11px;color:#7A7265;'>
-                © " . date('Y') . " Dock 71 Cantù • Birreria Artigianale, Burger &amp; Pizza a Lunga Lievitazione
-            </div>
-        </div>
-    </body>
-    </html>";
-}
-
-function sendDock71Mail(string $to, string $subject, string $htmlBody): bool {
-    $headers  = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-    $headers .= "From: Dock 71 Cantù <info@dock71birreria.it>\r\n";
-    $headers .= "Reply-To: info@dock71birreria.it\r\n";
-    return @mail($to, $subject, $htmlBody, $headers);
+function sendDock71Mail(string $to, string $subject, string $htmlBody, string $toName = 'Cliente'): bool {
+    return sendDock71SmtpEmail($to, $toName, $subject, $htmlBody, COMPANY_NOTIFICATION_EMAIL);
 }
 
 // ============================================================================

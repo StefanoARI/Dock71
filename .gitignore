@@ -7,9 +7,7 @@ coverage/
 !.env.example
 
 # Sensitive database & SMTP configs
-db.php
 config.php
-public/backend/db.php
 
 # Media Upload persistence (MUST NOT be overwritten by Git deploy)
 uploads/

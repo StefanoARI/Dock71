@@ -19,8 +19,6 @@ deployment:
         --exclude='.cpanel.yml' \
         --exclude='uploads/' \
         --exclude='backend/uploads/' \
-        --exclude='backend/db.php' \
-        --exclude='db.php' \
         --exclude='config.php' \
         --exclude='.env' \
         ./produzione_cpanel/ $DEPLOYPATH
