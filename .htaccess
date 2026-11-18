@@ -37,6 +37,11 @@ Options -Indexes +FollowSymLinks
     RewriteCond %{DOCUMENT_ROOT}/produzione_cpanel/assets/%1 -f
     RewriteRule ^assets/(.*)$ /produzione_cpanel/assets/$1 [L]
 
+    # Se viene richiesto un file statico nella root (es. favicon, logo-dock71.png, site.webmanifest) presente in /produzione_cpanel/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{DOCUMENT_ROOT}/produzione_cpanel%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ /produzione_cpanel/$1 [L]
+
     # Se siamo nella root del repository e c'è la cartella produzione_cpanel,
     # servi sempre l'index.html compilato (e MAI l'index.html di sviluppo che punta a /src/main.tsx)
     RewriteCond %{REQUEST_URI} !^/produzione_cpanel/

@@ -182,15 +182,15 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ page, customSubtitle }) => {
         ? window.location.origin
         : 'https://www.dock71birreria.it';
     const canonicalUrl = `${origin}${config.path}`;
-    const faviconUrl = `${origin}/favicon.svg`;
+    const faviconUrl = 'https://www.dock71birreria.it/produzione_cpanel/favicon.svg';
 
     // 1. Document Title
     document.title = baseTitle;
 
     // 2. Favicon & App Icons enforcement
-    setOrCreateLink('icon', '/favicon.svg', { type: 'image/svg+xml' });
-    setOrCreateLink('shortcut icon', '/favicon.svg', { type: 'image/svg+xml' });
-    setOrCreateLink('apple-touch-icon', '/favicon.svg');
+    setOrCreateLink('icon', faviconUrl, { type: 'image/svg+xml' });
+    setOrCreateLink('shortcut icon', faviconUrl, { type: 'image/svg+xml' });
+    setOrCreateLink('apple-touch-icon', faviconUrl);
     setOrCreateLink('canonical', canonicalUrl);
 
     // 3. Standard SEO Meta Tags
