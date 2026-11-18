@@ -29,6 +29,7 @@ import { NotFoundPage } from './components/NotFoundPage';
 import { ThankYouPage } from './components/ThankYouPage';
 import { AdminDashboard } from './components/AdminDashboard';
 import { ComingSoonPage } from './components/ComingSoonPage';
+import { SeoHead } from './components/SeoHead';
 import { useSiteData } from './context/SiteDataContext';
 
 // Impostazione temporanea Coming Soon (impostare a false quando si vorrà pubblicare l'intero sito)
@@ -208,6 +209,7 @@ export default function App() {
     if (currentView === 'admin') {
       return (
         <>
+          <SeoHead page="admin" />
           <AdminDashboard onBackToSite={() => handleNavClick('home')} />
           <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
         </>
@@ -216,6 +218,7 @@ export default function App() {
 
     return (
       <>
+        <SeoHead page="coming-soon" />
         <ComingSoonPage
           onOpenBookingModal={openBookingGeneral}
           onOpenAdmin={() => handleNavClick('admin')}
@@ -255,6 +258,7 @@ export default function App() {
 
   return (
     <div className="bg-[#FFF9EB] font-work text-[#1D1C13] antialiased selection:bg-dock-burgundy selection:text-white min-h-screen">
+      <SeoHead page={currentView} />
       {/* ========================================== */}
       {/* TOP CHECKERBOARD BRAND BAND */}
       {/* ========================================== */}

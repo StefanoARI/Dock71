@@ -132,6 +132,10 @@ if (!$isAuthenticated) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Accesso riservato 2FA TOTP al pannello di controllo CRM di Dock 71 Cantù.">
     <title>Dock 71 Cantù | Accesso Riservato CRM 2FA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Epilogue:wght@600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -404,6 +408,10 @@ $recentConsents = $pdo->query("SELECT * FROM `cookie_consent_logs` ORDER BY id D
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Pannello di controllo CRM, Analytics, Prenotazioni e Consensi GDPR di Dock 71 Cantù.">
     <title>Dock 71 Cantù - CRM, Analytics &amp; Control Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
