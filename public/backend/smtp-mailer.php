@@ -1,7 +1,15 @@
 <?php
 /**
  * DOCK 71 CANTÙ - AUTHENTICATED SMTP MAILER CON PHPMAILER
- * Utilizza la libreria ufficiale PHPMailer (SSL/TLS Porta 465 su mailserver15.vhosting-it.com + fallback STARTTLS 587).
+ *
+ * Strategia multi-percorso per vHosting / cPanel:
+ * 1. mailserver15.vhosting-it.com:465 (SMTPS SSL autenticato)
+ * 2. mailserver15.vhosting-it.com:587 (STARTTLS autenticato)
+ * 3. localhost:465 / 127.0.0.1:465 (SMTPS SSL autenticato - bypassa firewall CSF SMTP_BLOCK su cPanel)
+ * 4. localhost:587 / 127.0.0.1:587 (STARTTLS autenticato - bypassa firewall CSF SMTP_BLOCK su cPanel)
+ * 5. mail.dock71birreria.it:465 (SMTPS SSL autenticato)
+ * 6. localhost:25 (Relay locale Exim su cPanel)
+ * 7. Fallback finale tramite PHPMailer isSendmail() (-f info@dock71birreria.it) solo se tutte le porte TCP SMTP risultano bloccate
  */
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -49,7 +57,8 @@ if (!function_exists('sendSmtpEmail')) {
         string $subject,
         string $htmlBody,
         string $replyTo = '',
-        ?string &$errorOut = null
+        ?string &$errorOut = null,
+        ?string &$transportUsed = null
     ): bool {
         $toEmail = trim($toEmail);
         if (empty($toEmail) || !filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
@@ -57,43 +66,76 @@ if (!function_exists('sendSmtpEmail')) {
             return false;
         }
 
+        if (!class_exists(PHPMailer::class)) {
+            $errorOut = 'Libreria PHPMailer non trovata in ' . __DIR__ . '/PHPMailer/src';
+            error_log($errorOut);
+            return false;
+        }
+
         $replyToEmail = (!empty($replyTo) && filter_var($replyTo, FILTER_VALIDATE_EMAIL))
             ? $replyTo
             : SMTP_FROM_EMAIL;
+        $replyToName = ($replyToEmail === SMTP_FROM_EMAIL) ? SMTP_FROM_NAME : '';
 
-        // Tentativo 1: SMTPS (SSL) Porta 465 su mailserver15.vhosting-it.com
-        // Tentativo 2 (fallback): STARTTLS Porta 587 se la 465 è bloccata dal firewall
+        $altBody = trim(strip_tags(str_replace(['<br>', '<br/>', '<br />', '</p>', '</tr>'], "\n", $htmlBody)));
+
+        // Percorsi SMTP ordinati per affidabilità su server vHosting / cPanel
         $attempts = [
-            ['secure' => PHPMailer::ENCRYPTION_SMTPS, 'port' => (int)SMTP_PORT],
-            ['secure' => PHPMailer::ENCRYPTION_STARTTLS, 'port' => 587],
+            ['mode' => 'smtp', 'host' => SMTP_HOST,                 'port' => (int)SMTP_PORT, 'secure' => PHPMailer::ENCRYPTION_SMTPS,    'auth' => true,  'autoTls' => true,  'timeout' => 8],
+            ['mode' => 'smtp', 'host' => SMTP_HOST,                 'port' => 587,            'secure' => PHPMailer::ENCRYPTION_STARTTLS, 'auth' => true,  'autoTls' => true,  'timeout' => 8],
+            ['mode' => 'smtp', 'host' => 'localhost',               'port' => 465,            'secure' => PHPMailer::ENCRYPTION_SMTPS,    'auth' => true,  'autoTls' => true,  'timeout' => 6],
+            ['mode' => 'smtp', 'host' => '127.0.0.1',               'port' => 465,            'secure' => PHPMailer::ENCRYPTION_SMTPS,    'auth' => true,  'autoTls' => true,  'timeout' => 6],
+            ['mode' => 'smtp', 'host' => 'localhost',               'port' => 587,            'secure' => PHPMailer::ENCRYPTION_STARTTLS, 'auth' => true,  'autoTls' => true,  'timeout' => 6],
+            ['mode' => 'smtp', 'host' => '127.0.0.1',               'port' => 587,            'secure' => PHPMailer::ENCRYPTION_STARTTLS, 'auth' => true,  'autoTls' => true,  'timeout' => 6],
+            ['mode' => 'smtp', 'host' => 'mail.dock71birreria.it',  'port' => 465,            'secure' => PHPMailer::ENCRYPTION_SMTPS,    'auth' => true,  'autoTls' => true,  'timeout' => 6],
+            ['mode' => 'smtp', 'host' => 'localhost',               'port' => 25,             'secure' => '',                             'auth' => false, 'autoTls' => false, 'timeout' => 6],
+            ['mode' => 'sendmail', 'host' => 'local-sendmail',      'port' => 0,              'secure' => '',                             'auth' => false, 'autoTls' => false, 'timeout' => 8],
         ];
+
+        $attemptErrors = [];
 
         foreach ($attempts as $cfg) {
             $mail = new PHPMailer(true);
+            $debugTranscript = [];
+
             try {
-                // Configurazione Server SMTP
-                $mail->isSMTP();
-                $mail->Host       = SMTP_HOST;
-                $mail->SMTPAuth   = true;
-                $mail->Username   = SMTP_USER;
-                $mail->Password   = SMTP_PASS;
-                $mail->SMTPSecure = $cfg['secure'];
-                $mail->Port       = $cfg['port'];
-                $mail->Timeout    = 15;
+                if ($cfg['mode'] === 'smtp') {
+                    $mail->isSMTP();
+                    $mail->Host       = $cfg['host'];
+                    $mail->Port       = $cfg['port'];
+                    $mail->SMTPAuth   = $cfg['auth'];
+                    if ($cfg['auth']) {
+                        $mail->Username = SMTP_USER;
+                        $mail->Password = SMTP_PASS;
+                    }
+                    $mail->SMTPSecure  = $cfg['secure'];
+                    $mail->SMTPAutoTLS = $cfg['autoTls'];
+                    $mail->Timeout     = $cfg['timeout'];
+                    $mail->SMTPDebug   = SMTP::DEBUG_CONNECTION;
+                    $mail->Debugoutput = function ($str) use (&$debugTranscript) {
+                        $line = trim((string)$str);
+                        if ($line !== '') {
+                            $debugTranscript[] = $line;
+                        }
+                    };
 
-                // Tolleranza certificati SSL condivisi vHosting / cPanel
-                $mail->SMTPOptions = [
-                    'ssl' => [
-                        'verify_peer'       => false,
-                        'verify_peer_name'  => false,
-                        'allow_self_signed' => true,
-                    ],
-                ];
+                    // Tolleranza certificati SSL condivisi vHosting / cPanel / localhost
+                    $mail->SMTPOptions = [
+                        'ssl' => [
+                            'verify_peer'       => false,
+                            'verify_peer_name'  => false,
+                            'allow_self_signed' => true,
+                        ],
+                    ];
+                } else {
+                    $mail->isSendmail();
+                }
 
-                // Mittente, Destinatario e Reply-To
+                // Mittente, Envelope Sender, Destinatario e Reply-To
+                $mail->Sender = SMTP_FROM_EMAIL;
                 $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
                 $mail->addAddress($toEmail, $toName ?: $toEmail);
-                $mail->addReplyTo($replyToEmail, SMTP_FROM_NAME);
+                $mail->addReplyTo($replyToEmail, $replyToName);
 
                 // Contenuto HTML UTF-8
                 $mail->isHTML(true);
@@ -101,17 +143,27 @@ if (!function_exists('sendSmtpEmail')) {
                 $mail->Encoding = PHPMailer::ENCODING_BASE64;
                 $mail->Subject  = $subject;
                 $mail->Body     = $htmlBody;
-                $mail->AltBody  = trim(strip_tags(str_replace(['<br>', '<br/>', '<br />', '</p>', '</tr>'], "\n", $htmlBody)));
+                $mail->AltBody  = $altBody;
 
                 if ($mail->send()) {
+                    $transportUsed = "{$cfg['host']}:{$cfg['port']}";
+                    $errorOut = null;
                     return true;
                 }
             } catch (Exception $e) {
-                $errorOut = $mail->ErrorInfo ?: $e->getMessage();
-                error_log("Errore invio SMTP (porta {$cfg['port']}): {$errorOut}");
+                $msg = $mail->ErrorInfo ?: $e->getMessage();
+                $tail = !empty($debugTranscript) ? ' [' . implode(' | ', array_slice($debugTranscript, -3)) . ']' : '';
+                $errLine = "{$cfg['host']}:{$cfg['port']} => {$msg}{$tail}";
+                $attemptErrors[] = $errLine;
+                error_log("Errore invio PHPMailer ({$errLine})");
+            } catch (\Throwable $t) {
+                $errLine = "{$cfg['host']}:{$cfg['port']} => " . $t->getMessage();
+                $attemptErrors[] = $errLine;
+                error_log("Errore critico PHPMailer ({$errLine})");
             }
         }
 
+        $errorOut = implode(' || ', $attemptErrors);
         return false;
     }
 }

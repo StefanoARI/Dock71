@@ -780,9 +780,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem(STORAGE_KEYS.EMAILS, JSON.stringify(sentEmails));
   }, [sentEmails]);
 
-  // Helper per chiamare il backend PHP / MySQL / SMTP su vHosting
+  // Helper per chiamare il backend PHP / MySQL / SMTP su vHosting (o relay Express /api/crm in AI Studio)
   const callBackendCrmApi = async (payload: Record<string, unknown>) => {
-    const endpoints = ['/backend/process-form.php', '/produzione_cpanel/backend/process-form.php'];
+    const endpoints = [
+      '/backend/process-form.php',
+      '/produzione_cpanel/backend/process-form.php',
+      '/api/crm',
+    ];
     for (const url of endpoints) {
       try {
         const res = await fetch(url, {
@@ -793,8 +797,10 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           },
           body: JSON.stringify({ ...payload, ajax: '1' }),
         });
-        if (res.ok) {
-          return await res.json().catch(() => null);
+        const ct = res.headers.get('content-type') || '';
+        if (res.ok && ct.includes('application/json')) {
+          const data = await res.json().catch(() => null);
+          if (data) return data;
         }
       } catch {
         // Prova endpoint successivo o continua in modalità locale

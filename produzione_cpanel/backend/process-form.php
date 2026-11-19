@@ -20,11 +20,13 @@ require_once __DIR__ . '/PHPMailer/src/SMTP.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/smtp-mailer.php';
 
+@set_time_limit(45);
+
 /**
  * Funzione diretta PHPMailer SMTP usata da process-form.php
  */
-function processFormSendSmtp(string $toEmail, string $toName, string $subject, string $htmlBody, string $replyTo = '', ?string &$errorOut = null): bool {
-    return sendSmtpEmail($toEmail, $toName, $subject, $htmlBody, $replyTo, $errorOut);
+function processFormSendSmtp(string $toEmail, string $toName, string $subject, string $htmlBody, string $replyTo = '', ?string &$errorOut = null, ?string &$transportOut = null): bool {
+    return sendSmtpEmail($toEmail, $toName, $subject, $htmlBody, $replyTo, $errorOut, $transportOut);
 }
 
 // Supporta anche richieste JSON nel body (fetch API da React)
@@ -140,7 +142,9 @@ if ($action === 'contact') {
         }
     }
 
-    $smtpError = null;
+    $clientSmtpError = null;
+    $adminSmtpError  = null;
+    $transportUsed   = null;
 
     // A) Email di Riepilogo al Cliente via PHPMailer SMTP
     $clientSent = false;
@@ -165,7 +169,8 @@ if ($action === 'contact') {
             "Dock 71 Cantù - Riepilogo del tuo messaggio",
             $clientHtml,
             COMPANY_NOTIFICATION_EMAIL,
-            $smtpError
+            $clientSmtpError,
+            $transportUsed
         );
     }
 
@@ -192,8 +197,11 @@ if ($action === 'contact') {
         "Nuovo Messaggio da {$name} - Dock 71 Cantù",
         $adminHtml,
         $email ?: COMPANY_NOTIFICATION_EMAIL,
-        $smtpError
+        $adminSmtpError,
+        $transportUsed
     );
+
+    $smtpError = implode(' | ', array_filter([$clientSmtpError, $adminSmtpError])) ?: null;
 
     if ($isAjax) {
         header('Content-Type: application/json; charset=UTF-8');
@@ -202,6 +210,7 @@ if ($action === 'contact') {
             'id'               => $insertedId,
             'client_mail_sent' => $clientSent,
             'admin_mail_sent'  => $adminSent,
+            'transport'        => $transportUsed,
             'smtp_error'       => $smtpError,
         ]);
         exit;
@@ -262,7 +271,9 @@ if ($action === 'booking') {
         }
     }
 
-    $smtpError = null;
+    $clientSmtpError = null;
+    $adminSmtpError  = null;
+    $transportUsed   = null;
 
     // A) Email di Riepilogo Richiesta Prenotazione al Cliente via PHPMailer SMTP
     $clientSent = false;
@@ -288,7 +299,8 @@ if ($action === 'booking') {
             "Dock 71 Cantù - Riepilogo Richiesta Prenotazione #{$bookingCode}",
             $clientBookingHtml,
             COMPANY_NOTIFICATION_EMAIL,
-            $smtpError
+            $clientSmtpError,
+            $transportUsed
         );
     }
 
@@ -315,8 +327,11 @@ if ($action === 'booking') {
         "Nuova Prenotazione [#{$bookingCode}] - {$name} ({$guests} pax - {$date} {$timeSlot})",
         $adminBookingHtml,
         $email ?: COMPANY_NOTIFICATION_EMAIL,
-        $smtpError
+        $adminSmtpError,
+        $transportUsed
     );
+
+    $smtpError = implode(' | ', array_filter([$clientSmtpError, $adminSmtpError])) ?: null;
 
     if ($isAjax) {
         header('Content-Type: application/json; charset=UTF-8');
@@ -326,6 +341,7 @@ if ($action === 'booking') {
             'booking_code'     => $bookingCode,
             'client_mail_sent' => $clientSent,
             'admin_mail_sent'  => $adminSent,
+            'transport'        => $transportUsed,
             'smtp_error'       => $smtpError,
         ]);
         exit;
@@ -553,3 +569,40 @@ if ($action === 'delete_records') {
     echo json_encode(['success' => true, 'deleted' => $deleted]);
     exit;
 }
+
+// ============================================================================
+// 6. TEST DIAGNOSTICO SMTP RISERVATO (invia solo a info@dock71birreria.it)
+// ============================================================================
+if ($action === 'test_smtp') {
+    header('Content-Type: application/json; charset=UTF-8');
+    $smtpError     = null;
+    $transportUsed = null;
+    $html = buildDock71EmailHtml(
+        'TEST SMTP DIAGNOSTICO',
+        '#336859',
+        'Verifica invio email PHPMailer SMTP',
+        'Staff Dock 71',
+        '<p>Questa è un\'email automatica di verifica inviata dal Gestionale Dock 71 per confermare che il server SMTP è operativo.</p>',
+        [
+            'Data/Ora Test' => date('d/m/Y H:i:s'),
+            'Server Host'   => $_SERVER['HTTP_HOST'] ?? 'CLI',
+        ]
+    );
+    $sent = processFormSendSmtp(
+        COMPANY_NOTIFICATION_EMAIL,
+        'Dock 71 Test SMTP',
+        'Test Connessione SMTP PHPMailer - Dock 71 Cantù',
+        $html,
+        COMPANY_NOTIFICATION_EMAIL,
+        $smtpError,
+        $transportUsed
+    );
+    echo json_encode([
+        'success'    => $sent,
+        'email_sent' => $sent,
+        'transport'  => $transportUsed,
+        'smtp_error' => $smtpError,
+    ]);
+    exit;
+}
+

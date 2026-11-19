@@ -27,8 +27,8 @@ $isAuthenticated = !empty($_SESSION['admin_logged_in']) && $_SESSION['admin_logg
 // ============================================================================
 // HELPER INVIO EMAIL TRAMITE CLIENT SMTP AUTENTICATO (Definito in db.php)
 // ============================================================================
-function sendDock71Mail(string $to, string $subject, string $htmlBody, string $toName = 'Cliente'): bool {
-    return sendDock71SmtpEmail($to, $toName, $subject, $htmlBody, COMPANY_NOTIFICATION_EMAIL);
+function sendDock71Mail(string $to, string $subject, string $htmlBody, string $toName = 'Cliente', ?string &$errorOut = null): bool {
+    return sendSmtpEmail($to, $toName, $subject, $htmlBody, COMPANY_NOTIFICATION_EMAIL, $errorOut);
 }
 
 // ============================================================================
@@ -197,8 +197,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crm_action'])) {
                         'Zona / Sala' => $booking['room'] ?? 'Sala Principale',
                     ]
                 );
-                sendDock71Mail($recipient, $subject, $html);
-                $successMsg = "Prenotazione #{$booking['booking_code']} confermata ed email automatica inviata a {$recipient}.";
+                $mailErr = null;
+                $mailOk = sendDock71Mail($recipient, $subject, $html, $booking['name'] ?? 'Cliente', $mailErr);
+                if ($mailOk) {
+                    $successMsg = "Prenotazione #{$booking['booking_code']} confermata ed email automatica inviata a {$recipient}.";
+                } else {
+                    $errorMsg = "Prenotazione #{$booking['booking_code']} confermata su DB, ma invio email SMTP a {$recipient} non riuscito: " . ($mailErr ?: 'Errore SMTP sconosciuto');
+                }
             } elseif ($newStatus === 'Rifiutato') {
                 $safeReason = htmlspecialchars($rejectionReason ?: 'Disponibilità tavoli esaurita per la fascia oraria richiesta.', ENT_QUOTES, 'UTF-8');
                 $subject = "Aggiornamento Prenotazione #{$booking['booking_code']} - Dock 71 Cantù";
@@ -217,8 +222,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crm_action'])) {
                         'Coperti' => $booking['guests'] . ' Ospiti',
                     ]
                 );
-                sendDock71Mail($recipient, $subject, $html);
-                $successMsg = "Prenotazione #{$booking['booking_code']} rifiutata con motivazione ed email inviata a {$recipient}.";
+                $mailErr = null;
+                $mailOk = sendDock71Mail($recipient, $subject, $html, $booking['name'] ?? 'Cliente', $mailErr);
+                if ($mailOk) {
+                    $successMsg = "Prenotazione #{$booking['booking_code']} rifiutata con motivazione ed email inviata a {$recipient}.";
+                } else {
+                    $errorMsg = "Prenotazione #{$booking['booking_code']} aggiornata su DB, ma invio email SMTP a {$recipient} non riuscito: " . ($mailErr ?: 'Errore SMTP sconosciuto');
+                }
             }
         }
     }
@@ -250,8 +260,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crm_action'])) {
                 "<div style='padding:14px;background:#FFFFFF;border:1px solid #E8E2D4;border-radius:8px;'>{$safeReply}</div>",
                 ['Il tuo messaggio originale' => mb_strimwidth($contact['message'] ?? '', 0, 120, '...')]
             );
-            sendDock71Mail($contact['email'], "Risposta da Dock 71 Cantù", $html);
-            $successMsg = "Risposta inviata con successo a {$contact['email']}. Stato aggiornato a 'Risposto'.";
+            $mailErr = null;
+            $mailOk = sendDock71Mail($contact['email'], "Risposta da Dock 71 Cantù", $html, $contact['name'] ?? 'Cliente', $mailErr);
+            if ($mailOk) {
+                $successMsg = "Risposta inviata con successo a {$contact['email']}. Stato aggiornato a 'Risposto'.";
+            } else {
+                $errorMsg = "Stato aggiornato a 'Risposto', ma invio email SMTP a {$contact['email']} non riuscito: " . ($mailErr ?: 'Errore SMTP sconosciuto');
+            }
         }
     }
 
